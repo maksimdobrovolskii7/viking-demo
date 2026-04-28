@@ -73,4 +73,16 @@ public class VikingFactory {
         };
         return new EquipmentItem(name, typeRu);
     }
+
+    public Viking createManualViking(CreateVikingRequest request) {
+        Viking viking = new Viking();
+        viking.setName(request.name());
+        viking.setAge(request.age());
+        viking.setHeightCm(request.heightCm());
+        viking.setHairColor(request.hairColor());
+        viking.setBeardStyle(request.beardStyle());
+        viking.setEquipment(request.equipment());
+        return viking;
+    }
+
 }

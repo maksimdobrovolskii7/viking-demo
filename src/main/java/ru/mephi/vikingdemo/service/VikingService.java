@@ -22,13 +22,7 @@ public class VikingService {
     }
 
     public Viking createVikingManually(CreateVikingRequest request) {
-        Viking viking = new Viking();
-        viking.setName(request.name());
-        viking.setAge(request.age());
-        viking.setHeightCm(request.heightCm());
-        viking.setHairColor(request.hairColor());
-        viking.setBeardStyle(request.beardStyle());
-        viking.setEquipment(request.equipment());
+        Viking viking = vikingFactory.createManualViking(request);  // ← через фабрику!
         vikings.put(viking.getId(), viking);
         return viking;
     }
