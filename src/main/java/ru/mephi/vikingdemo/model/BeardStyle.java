@@ -1,12 +1,5 @@
 package ru.mephi.vikingdemo.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
-@Schema(description = "Форма бороды викинга")
 public enum BeardStyle {
-    SHORT,
-    LONG,
-    BRAIDED,
-    FORKED,
-    CLEAN_SHAVEN
+    CLEAN_SHAVEN, SHORT_BEARD, LONG_BEARD, BRAIDED_BEARD, FORKED_BEARD, MUSTACHE_ONLY
 }

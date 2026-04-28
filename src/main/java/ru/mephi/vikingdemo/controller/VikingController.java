@@ -1,17 +1,17 @@
 package ru.mephi.vikingdemo.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import ru.mephi.vikingdemo.model.*;
 import ru.mephi.vikingdemo.service.VikingService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/vikings")
-@Tag(name = "Vikings", description = "Операции с викингами")
+@Tag(name = "Viking API", description = "Управление викингами")
 public class VikingController {
 
     private final VikingService vikingService;
@@ -22,56 +22,47 @@ public class VikingController {
         this.vikingListener = vikingListener;
     }
 
-    @GetMapping
+    @GetMapping(produces = "application/json")
+    @Operation(summary = "Получить всех викингов")
     public List<Viking> getAllVikings() {
-        return vikingService.findAll();
+        return vikingService.getAllVikings();
     }
 
-    @GetMapping("/test")
-    public List<String> test() {
-        return List.of("Ragnar", "Bjorn");
-    }
-
-    @PostMapping("/post")
-    public void addViking() {
-        vikingListener.testAdd();
-    }
-
-    @PostMapping
-    public Viking createViking(@RequestBody CreateVikingRequest request) {
-        Viking newViking = vikingService.createViking(request);
+    @PostMapping(value = "/random", produces = "application/json")
+    @Operation(summary = "Создать случайного викинга (автоматически)")
+    public Viking createRandomViking() {
+        Viking viking = vikingService.createRandomViking();
         vikingListener.refreshGui();
-        return newViking;
+        return viking;
     }
 
-    @DeleteMapping("/{index}")
-    public ResponseEntity<String> deleteVikingByIndex(@PathVariable int index) {
-        boolean deleted = vikingService.deleteVikingByIndex(index);
-        if (deleted) {
-            vikingListener.refreshGui();
-            return ResponseEntity.ok("Viking at index " + index + " deleted");
-        }
-        return ResponseEntity.status(404).body("Viking not found at index: " + index);
+    // ← НОВЫЙ МЕТОД: ручное создание викинга
+    @PostMapping(value = "/create", produces = "application/json", consumes = "application/json")
+    @Operation(summary = "Создать викинга вручную (задать параметры)")
+    public Viking createVikingManually(@RequestBody CreateVikingRequest request) {
+        Viking viking = new Viking();
+        viking.setName(request.name());
+        viking.setAge(request.age());
+        viking.setHeightCm(request.heightCm());
+        viking.setHairColor(request.hairColor());
+        viking.setBeardStyle(request.beardStyle());
+        viking.setEquipment(request.equipment());
+
+        vikingService.addViking(viking);  // нужен этот метод в сервисе
+        vikingListener.refreshGui();
+        return viking;
     }
 
-    @DeleteMapping("/by-name/{name}")
-    public ResponseEntity<String> deleteVikingByName(@PathVariable String name) {
-        boolean deleted = vikingService.deleteVikingByName(name);
-        if (deleted) {
-            vikingListener.refreshGui();
-            return ResponseEntity.ok("Viking with name " + name + " deleted");
-        }
-        return ResponseEntity.status(404).body("Viking not found with name: " + name);
+    @DeleteMapping
+    @Operation(summary = "Удалить всех викингов")
+    public void clearAllVikings() {
+        vikingService.clear();
+        vikingListener.refreshGui();
     }
 
-    @PutMapping("/{index}")
-    public ResponseEntity<?> updateViking(@PathVariable int index, @RequestBody UpdateVikingRequest request) {
-        try {
-            Viking updated = vikingService.updateViking(index, request);
-            vikingListener.refreshGui();
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
-        }
+    @GetMapping(value = "/count", produces = "application/json")
+    @Operation(summary = "Количество викингов")
+    public int getCount() {
+        return vikingService.getAllVikings().size();
     }
 }

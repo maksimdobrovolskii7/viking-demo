@@ -1,12 +1,19 @@
 package ru.mephi.vikingdemo.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+public class EquipmentItem {
+    private String name;
+    private String type;
 
-@Schema(description = "Предмет снаряжения")
-public record EquipmentItem(
-        @Schema(description = "Название предмета", example = "Iron Axe")
-        String name,
-        @Schema(description = "Редкость или качество", example = "Rare")
-        String quality
-) {
+    public EquipmentItem() {}
+
+    public EquipmentItem(String name, String type) {
+        this.name = name;
+        this.type = type;
+    }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
 }

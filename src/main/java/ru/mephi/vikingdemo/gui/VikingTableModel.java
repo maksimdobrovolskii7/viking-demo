@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class VikingTableModel extends AbstractTableModel {
 
-    private final String[] columns = {"Name", "Age", "Height (cm)", "Hair color", "Beard style", "Equipment"};
+    private final String[] columns = {"Имя", "Возраст", "Рост (см)", "Цвет волос", "Стиль бороды", "Экипировка"};
     private final List<Viking> data = new ArrayList<>();
 
     public void addViking(Viking viking) {
@@ -43,20 +43,44 @@ public class VikingTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         Viking viking = data.get(rowIndex);
+
+        // Перевод цвета волос на русский
+        String hairColorRu = switch (viking.getHairColor()) {
+            case BLOND -> "Блондин";
+            case RED -> "Рыжий";
+            case BROWN -> "Шатен";
+            case BLACK -> "Чёрный";
+            case GREY -> "Седой";
+            case WHITE -> "Белый";
+        };
+
+        // Перевод стиля бороды на русский
+        String beardStyleRu = switch (viking.getBeardStyle()) {
+            case CLEAN_SHAVEN -> "Бритый";
+            case SHORT_BEARD -> "Короткая борода";
+            case LONG_BEARD -> "Длинная борода";
+            case BRAIDED_BEARD -> "Заплетённая борода";
+            case FORKED_BEARD -> "Раздвоенная борода";
+            case MUSTACHE_ONLY -> "Только усы";
+        };
+
         return switch (columnIndex) {
-            case 0 -> viking.name();
-            case 1 -> viking.age();
-            case 2 -> viking.heightCm();
-            case 3 -> viking.hairColor();
-            case 4 -> viking.beardStyle();
-            case 5 -> formatEquipment(viking.equipment());
+            case 0 -> viking.getName();
+            case 1 -> viking.getAge() + " лет";
+            case 2 -> viking.getHeightCm() + " см";
+            case 3 -> hairColorRu;
+            case 4 -> beardStyleRu;
+            case 5 -> formatEquipment(viking.getEquipment());
             default -> "";
         };
     }
 
     private String formatEquipment(List<EquipmentItem> equipment) {
+        if (equipment == null || equipment.isEmpty()) {
+            return "Нет экипировки";
+        }
         return equipment.stream()
-                .map(item -> item.name() + " [" + item.quality() + "]")
+                .map(item -> item.getName() + " (" + item.getType() + ")")
                 .collect(Collectors.joining(", "));
     }
 }

@@ -1,74 +1,88 @@
 package ru.mephi.vikingdemo.service;
 
-import org.springframework.stereotype.Service;
 import ru.mephi.vikingdemo.model.*;
+import net.datafaker.Faker;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
 public class VikingService {
+    private final List<Viking> vikings = new CopyOnWriteArrayList<>();
+    private final Faker faker = new Faker();
 
-    private final CopyOnWriteArrayList<Viking> vikings = new CopyOnWriteArrayList<>();
-    private final VikingFactory vikingFactory;
+    private final List<String> vikingFirstNames = Arrays.asList(
+            "Рагнар", "Лагерта", "Бьорн", "Ивар", "Уббе", "Хвитсерк", "Сигурд",
+            "Флоки", "Ролло", "Харальд", "Хальвдан", "Эрик", "Лейф", "Гуннар"
+    );
 
-    @Autowired
-    public VikingService(VikingFactory vikingFactory) {
-        this.vikingFactory = vikingFactory;
+    private final List<String> vikingLastNames = Arrays.asList(
+            "Лотброк", "Рагнарссон", "Железная Рука", "Грозовая Туча",
+            "Бескостный", "Волчья Погибель", "Свирепый", "Красный"
+    );
+
+    private final List<String> weaponNames = Arrays.asList(
+            "Датский топор", "Длинный меч", "Сакс", "Копье", "Боевой топор"
+    );
+
+    private final List<String> armorNames = Arrays.asList(
+            "Кольчуга", "Кожаная броня", "Железный шлем", "Кожаный шлем"
+    );
+
+    private final List<String> accessoryNames = Arrays.asList(
+            "Молот Тора", "Кольцо рун", "Глаз Одина", "Зуб Фенрира"
+    );
+
+    public Viking createRandomViking() {
+        Viking viking = new Viking();
+        String firstName = faker.options().nextElement(vikingFirstNames);
+        String lastName = faker.options().nextElement(vikingLastNames);
+        viking.setName(firstName + " " + lastName);
+        viking.setAge(faker.number().numberBetween(18, 70));
+        viking.setHeightCm(faker.number().numberBetween(160, 210));
+        viking.setHairColor(faker.options().option(HairColor.class));
+        viking.setBeardStyle(faker.options().option(BeardStyle.class));
+
+        int equipmentCount = faker.number().numberBetween(1, 4);
+        List<EquipmentItem> equipment = new ArrayList<>();
+        for (int i = 0; i < equipmentCount; i++) {
+            equipment.add(generateRandomEquipment());
+        }
+        viking.setEquipment(equipment);
+
+        vikings.add(viking);
+        return viking;
+    }
+
+    private EquipmentItem generateRandomEquipment() {
+        String type = faker.options().option("weapon", "armor", "accessory");
+        String typeRu = switch (type) {
+            case "weapon" -> "оружие";
+            case "armor" -> "броня";
+            default -> "аксессуар";
+        };
+        String name = switch (type) {
+            case "weapon" -> faker.options().nextElement(weaponNames);
+            case "armor" -> faker.options().nextElement(armorNames);
+            default -> faker.options().nextElement(accessoryNames);
+        };
+        return new EquipmentItem(name, typeRu);
+    }
+
+    public List<Viking> getAllVikings() {
+        return new ArrayList<>(vikings);
     }
 
     public List<Viking> findAll() {
-        return List.copyOf(vikings);
+        return new ArrayList<>(vikings);
     }
 
-    public Viking createRandomViking() {
-        Viking viking = vikingFactory.createRandomViking();
+    public void clear() {
+        vikings.clear();
+    }
+
+    public void addViking(Viking viking) {
         vikings.add(viking);
-        return viking;
-    }
-
-    public Viking createViking(CreateVikingRequest request) {
-        Viking viking = new Viking(
-                request.name(),
-                request.age(),
-                request.heightCm(),
-                request.hairColor(),
-                request.beardStyle(),
-                request.equipment()
-        );
-        vikings.add(viking);
-        return viking;
-    }
-
-    public boolean deleteVikingByIndex(int index) {
-        if (index >= 0 && index < vikings.size()) {
-            vikings.remove(index);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean deleteVikingByName(String name) {
-        return vikings.removeIf(viking -> viking.name().equalsIgnoreCase(name));
-    }
-
-    public Viking updateViking(int index, UpdateVikingRequest request) {
-        if (index < 0 || index >= vikings.size()) {
-            throw new RuntimeException("Viking not found at index: " + index);
-        }
-
-        Viking oldViking = vikings.get(index);
-        Viking updatedViking = new Viking(
-                request.name() != null ? request.name() : oldViking.name(),
-                request.age() != null ? request.age() : oldViking.age(),
-                request.heightCm() != null ? request.heightCm() : oldViking.heightCm(),
-                request.hairColor() != null ? request.hairColor() : oldViking.hairColor(),
-                request.beardStyle() != null ? request.beardStyle() : oldViking.beardStyle(),
-                request.equipment() != null ? request.equipment() : oldViking.equipment()
-        );
-
-        vikings.set(index, updatedViking);
-        return updatedViking;
     }
 }

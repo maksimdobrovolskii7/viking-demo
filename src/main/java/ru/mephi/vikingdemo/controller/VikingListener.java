@@ -19,10 +19,6 @@ public class VikingListener {
         this.gui = gui;
     }
 
-    void testAdd() {
-        gui.addNewViking(service.createRandomViking());
-    }
-
     public void refreshGui() {
         if (gui != null) {
             gui.refreshTable();
