@@ -3,21 +3,17 @@ package ru.mephi.vikingdemo.gui;
 import ru.mephi.vikingdemo.model.Viking;
 import ru.mephi.vikingdemo.service.VikingService;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.SwingConstants;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class VikingDesktopFrame extends JFrame {
 
     private final VikingService vikingService;
     private final VikingTableModel tableModel = new VikingTableModel();
+    private JTable vikingTable;
 
     public VikingDesktopFrame(VikingService vikingService) {
         this.vikingService = vikingService;
@@ -32,9 +28,27 @@ public class VikingDesktopFrame extends JFrame {
         header.setFont(header.getFont().deriveFont(Font.BOLD, 18f));
         add(header, BorderLayout.NORTH);
 
-        JTable vikingTable = new JTable(tableModel);
+        vikingTable = new JTable(tableModel);
         vikingTable.setRowHeight(28);
         add(new JScrollPane(vikingTable), BorderLayout.CENTER);
+
+        // Правая кнопка мыши для удаления викинга
+        vikingTable.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    int row = vikingTable.rowAtPoint(e.getPoint());
+                    if (row >= 0) {
+                        String id = tableModel.getVikingIdAt(row);
+                        int confirm = JOptionPane.showConfirmDialog(VikingDesktopFrame.this,
+                                "Удалить викинга?", "Подтверждение", JOptionPane.YES_NO_OPTION);
+                        if (confirm == JOptionPane.YES_OPTION) {
+                            vikingService.deleteById(id);
+                            refreshTable();
+                        }
+                    }
+                }
+            }
+        });
 
         JButton createButton = new JButton("Create random viking");
         createButton.addActionListener(event -> onCreateViking());
@@ -46,11 +60,7 @@ public class VikingDesktopFrame extends JFrame {
 
     private void onCreateViking() {
         Viking viking = vikingService.createRandomViking();
-        tableModel.addViking(viking);
-    }
-
-    public void addNewViking(Viking viking) {
-        tableModel.addViking(viking);
+        refreshTable();
     }
 
     public void refreshTable() {

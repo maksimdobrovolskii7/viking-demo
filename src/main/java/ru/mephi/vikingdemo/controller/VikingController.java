@@ -4,10 +4,10 @@ import ru.mephi.vikingdemo.model.*;
 import ru.mephi.vikingdemo.service.VikingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/vikings")
@@ -28,6 +28,14 @@ public class VikingController {
         return vikingService.getAllVikings();
     }
 
+    @GetMapping(value = "/{id}", produces = "application/json")
+    @Operation(summary = "Получить викинга по ID")
+    public ResponseEntity<Viking> getVikingById(@PathVariable String id) {
+        return vikingService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PostMapping(value = "/random", produces = "application/json")
     @Operation(summary = "Создать случайного викинга (автоматически)")
     public Viking createRandomViking() {
@@ -36,21 +44,23 @@ public class VikingController {
         return viking;
     }
 
-    // ← НОВЫЙ МЕТОД: ручное создание викинга
     @PostMapping(value = "/create", produces = "application/json", consumes = "application/json")
     @Operation(summary = "Создать викинга вручную (задать параметры)")
     public Viking createVikingManually(@RequestBody CreateVikingRequest request) {
-        Viking viking = new Viking();
-        viking.setName(request.name());
-        viking.setAge(request.age());
-        viking.setHeightCm(request.heightCm());
-        viking.setHairColor(request.hairColor());
-        viking.setBeardStyle(request.beardStyle());
-        viking.setEquipment(request.equipment());
-
-        vikingService.addViking(viking);  // нужен этот метод в сервисе
+        Viking viking = vikingService.createVikingManually(request);
         vikingListener.refreshGui();
         return viking;
+    }
+
+    @PutMapping(value = "/{id}", produces = "application/json", consumes = "application/json")
+    @Operation(summary = "Обновить викинга по ID (через текущего)")
+    public ResponseEntity<Viking> updateViking(@PathVariable String id, @RequestBody UpdateVikingRequest request) {
+        return vikingService.updateViking(id, request)
+                .map(viking -> {
+                    vikingListener.refreshGui();
+                    return ResponseEntity.ok(viking);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping
@@ -58,6 +68,17 @@ public class VikingController {
     public void clearAllVikings() {
         vikingService.clear();
         vikingListener.refreshGui();
+    }
+
+    @DeleteMapping(value = "/{id}")
+    @Operation(summary = "Удалить викинга по ID")
+    public ResponseEntity<Void> deleteVikingById(@PathVariable String id) {
+        boolean deleted = vikingService.deleteById(id);
+        if (deleted) {
+            vikingListener.refreshGui();
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping(value = "/count", produces = "application/json")
