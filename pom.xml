@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.5</version>
+        <version>3.4.4</version>
         <relativePath/>
     </parent>
 
@@ -17,16 +17,17 @@
     <description>Demo project: Swing GUI + REST API + Swagger for vikings</description>
 
     <properties>
-        <java.version>24</java.version>
-        <maven.compiler.release>24</maven.compiler.release>
-        <springdoc.version>3.0.2</springdoc.version>
-        <datafaker.version>2.5.4</datafaker.version>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <springdoc.version>2.8.5</springdoc.version>
+        <datafaker.version>2.4.2</datafaker.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webmvc</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
         <dependency>
