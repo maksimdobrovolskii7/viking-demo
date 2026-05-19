@@ -2,21 +2,22 @@ package ru.mephi.vikingdemo.gui;
 
 import ru.mephi.vikingdemo.model.Viking;
 import ru.mephi.vikingdemo.service.VikingService;
-
+import ru.mephi.vikingdemo.service.VikingLambdaService;
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class VikingDesktopFrame extends JFrame {
-
     private final VikingService vikingService;
-    private final VikingTableModel tableModel = new VikingTableModel();
+    private final VikingLambdaService lambdaService;
+    private final VikingTableModel tableModel;
     private JTable vikingTable;
 
-    public VikingDesktopFrame(VikingService vikingService) {
+    public VikingDesktopFrame(VikingService vikingService, VikingLambdaService lambdaService) {
         this.vikingService = vikingService;
+        this.lambdaService = lambdaService;
+        this.tableModel = new VikingTableModel();
 
         setTitle("Viking Demo");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -32,7 +33,6 @@ public class VikingDesktopFrame extends JFrame {
         vikingTable.setRowHeight(28);
         add(new JScrollPane(vikingTable), BorderLayout.CENTER);
 
-        // Правая кнопка мыши для удаления викинга
         vikingTable.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (SwingUtilities.isRightMouseButton(e)) {
@@ -53,17 +53,38 @@ public class VikingDesktopFrame extends JFrame {
         JButton createButton = new JButton("Create random viking");
         createButton.addActionListener(event -> onCreateViking());
 
+        JButton massGenButton = new JButton("Mass generate");
+        massGenButton.addActionListener(e -> {
+            String input = JOptionPane.showInputDialog(this, "Enter number of vikings to generate:", "10");
+            int count = 10;
+            try {
+                count = Integer.parseInt(input);
+            } catch (Exception ex) { }
+            vikingService.generateRandomVikings(count);
+            refreshTable();
+        });
+
+        JButton analysisButton = new JButton("Lambda Analysis");
+        analysisButton.addActionListener(e -> {
+            VikingLambdaFrame lambdaFrame = new VikingLambdaFrame(lambdaService);
+            lambdaFrame.setVisible(true);
+        });
+
         JPanel bottomPanel = new JPanel();
         bottomPanel.add(createButton);
+        bottomPanel.add(massGenButton);
+        bottomPanel.add(analysisButton);
         add(bottomPanel, BorderLayout.SOUTH);
+
+        refreshTable();
     }
 
     private void onCreateViking() {
-        Viking viking = vikingService.createRandomViking();
+        vikingService.createRandomViking();
         refreshTable();
     }
 
     public void refreshTable() {
-        tableModel.updateData(vikingService.findAll());
+        tableModel.updateData(vikingService.getAllVikings());
     }
 }

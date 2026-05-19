@@ -2,9 +2,9 @@ package ru.mephi.vikingdemo.service;
 
 import ru.mephi.vikingdemo.model.*;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.IntStream;
 
 @Service
 public class VikingService {
@@ -21,8 +21,12 @@ public class VikingService {
         return viking;
     }
 
+    public void generateRandomVikings(int count) {
+        IntStream.range(0, count).forEach(i -> createRandomViking());
+    }
+
     public Viking createVikingManually(CreateVikingRequest request) {
-        Viking viking = vikingFactory.createManualViking(request);  // ← через фабрику!
+        Viking viking = vikingFactory.createManualViking(request);
         vikings.put(viking.getId(), viking);
         return viking;
     }

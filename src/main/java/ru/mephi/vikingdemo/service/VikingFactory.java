@@ -3,7 +3,6 @@ package ru.mephi.vikingdemo.service;
 import ru.mephi.vikingdemo.model.*;
 import net.datafaker.Faker;
 import org.springframework.stereotype.Component;
-
 import java.util.*;
 
 @Component
@@ -71,7 +70,16 @@ public class VikingFactory {
             case "armor" -> faker.options().nextElement(armorNames);
             default -> faker.options().nextElement(accessoryNames);
         };
-        return new EquipmentItem(name, typeRu);
+        Quality quality = generateQuality();
+        return new EquipmentItem(name, typeRu, quality);
+    }
+
+    private Quality generateQuality() {
+        int roll = faker.number().numberBetween(0, 100);
+        if (roll < 60) return Quality.COMMON;
+        if (roll < 85) return Quality.UNCOMMON;
+        if (roll < 97) return Quality.RARE;
+        return Quality.LEGENDARY;
     }
 
     public Viking createManualViking(CreateVikingRequest request) {
@@ -84,5 +92,4 @@ public class VikingFactory {
         viking.setEquipment(request.equipment());
         return viking;
     }
-
 }

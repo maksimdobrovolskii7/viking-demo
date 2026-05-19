@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class VikingTableModel extends AbstractTableModel {
-
     private final String[] columns = {"Имя", "Возраст", "Рост (см)", "Цвет волос", "Стиль бороды", "Экипировка"};
     private final List<Viking> data = new ArrayList<>();
 
@@ -43,8 +42,6 @@ public class VikingTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         Viking viking = data.get(rowIndex);
-
-        // Перевод цвета волос на русский
         String hairColorRu = switch (viking.getHairColor()) {
             case BLOND -> "Блондин";
             case RED -> "Рыжий";
@@ -53,8 +50,6 @@ public class VikingTableModel extends AbstractTableModel {
             case GREY -> "Седой";
             case WHITE -> "Белый";
         };
-
-        // Перевод стиля бороды на русский
         String beardStyleRu = switch (viking.getBeardStyle()) {
             case CLEAN_SHAVEN -> "Бритый";
             case SHORT_BEARD -> "Короткая борода";
@@ -63,7 +58,6 @@ public class VikingTableModel extends AbstractTableModel {
             case FORKED_BEARD -> "Раздвоенная борода";
             case MUSTACHE_ONLY -> "Только усы";
         };
-
         return switch (columnIndex) {
             case 0 -> viking.getName();
             case 1 -> viking.getAge() + " лет";
@@ -80,12 +74,11 @@ public class VikingTableModel extends AbstractTableModel {
             return "Нет экипировки";
         }
         return equipment.stream()
-                .map(item -> item.getName() + " (" + item.getType() + ")")
+                .map(item -> item.getName() + " (" + item.getType() + ") [" + item.getQuality() + "]")
                 .collect(Collectors.joining(", "));
     }
 
     public String getVikingIdAt(int row) {
         return data.get(row).getId();
     }
-
 }

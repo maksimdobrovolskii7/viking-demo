@@ -1,0 +1,269 @@
+package ru.mephi.vikingdemo.gui;
+
+import ru.mephi.vikingdemo.model.*;
+import ru.mephi.vikingdemo.service.VikingLambdaService;
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.util.List;
+import java.util.Optional;
+
+public class VikingLambdaFrame extends JFrame {
+
+    private final VikingLambdaService analysisWorker;
+    private final JTextArea outputZone;
+    private final VikingTableModel resultTableModel;
+
+    public VikingLambdaFrame(VikingLambdaService lambdaService) {
+        this.analysisWorker = lambdaService;
+        this.resultTableModel = new VikingTableModel();
+
+        setTitle("Stream API Analytics Dashboard");
+        setSize(1100, 700);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JTabbedPane tabContainer = new JTabbedPane();
+        tabContainer.addTab("Statistical Counts", buildCountingSection());
+        tabContainer.addTab("Warrior Display", buildDisplaySection());
+        tabContainer.addTab("Index Operations", buildIndexSection());
+
+        add(tabContainer, BorderLayout.CENTER);
+
+        outputZone = new JTextArea(8, 50);
+        outputZone.setEditable(false);
+        outputZone.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        add(new JScrollPane(outputZone), BorderLayout.SOUTH);
+    }
+
+    // Остальные методы остаются без изменений...
+    private JPanel buildCountingSection() {
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JPanel agePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        agePanel.setBorder(BorderFactory.createTitledBorder("Age Analytics"));
+
+        JTextField ageField = new JTextField(5);
+        JButton olderBtn = new JButton("Count >");
+        JButton youngerBtn = new JButton("Count <");
+
+        JTextField rangeLow = new JTextField(4);
+        JTextField rangeHigh = new JTextField(4);
+        JButton rangeBtn = new JButton("Count between");
+        JButton outsideBtn = new JButton("Count outside");
+
+        olderBtn.addActionListener(e -> {
+            try {
+                int val = Integer.parseInt(ageField.getText());
+                long cnt = analysisWorker.getWarriorsOlderThan(val);
+                outputZone.append("Warriors older than " + val + ": " + cnt + "\n");
+            } catch(Exception ex) {
+                outputZone.append("Invalid age value\n");
+            }
+        });
+
+        youngerBtn.addActionListener(e -> {
+            try {
+                int val = Integer.parseInt(ageField.getText());
+                long cnt = analysisWorker.getWarriorsYoungerThan(val);
+                outputZone.append("Warriors younger than " + val + ": " + cnt + "\n");
+            } catch(Exception ex) {
+                outputZone.append("Invalid age value\n");
+            }
+        });
+
+        rangeBtn.addActionListener(e -> {
+            try {
+                int lo = Integer.parseInt(rangeLow.getText());
+                int hi = Integer.parseInt(rangeHigh.getText());
+                long cnt = analysisWorker.getWarriorsAgeBetween(lo, hi);
+                outputZone.append("Warriors between " + lo + " and " + hi + ": " + cnt + "\n");
+            } catch(Exception ex) {
+                outputZone.append("Invalid range values\n");
+            }
+        });
+
+        outsideBtn.addActionListener(e -> {
+            try {
+                int lo = Integer.parseInt(rangeLow.getText());
+                int hi = Integer.parseInt(rangeHigh.getText());
+                long cnt = analysisWorker.getWarriorsAgeOutsideRange(lo, hi);
+                outputZone.append("Warriors outside [" + lo + "-" + hi + "]: " + cnt + "\n");
+            } catch(Exception ex) {
+                outputZone.append("Invalid range values\n");
+            }
+        });
+
+        agePanel.add(new JLabel("Age:"));
+        agePanel.add(ageField);
+        agePanel.add(olderBtn);
+        agePanel.add(youngerBtn);
+        agePanel.add(new JLabel("Range:"));
+        agePanel.add(rangeLow);
+        agePanel.add(new JLabel("-"));
+        agePanel.add(rangeHigh);
+        agePanel.add(rangeBtn);
+        agePanel.add(outsideBtn);
+
+        JPanel comboPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        comboPanel.setBorder(BorderFactory.createTitledBorder("Beard & Hair Combo"));
+
+        JComboBox<BeardStyle> beardSelector = new JComboBox<>(BeardStyle.values());
+        JComboBox<HairColor> hairSelector = new JComboBox<>(HairColor.values());
+        JButton comboCountBtn = new JButton("Count matching");
+
+        comboCountBtn.addActionListener(e -> {
+            BeardStyle selectedBeard = (BeardStyle) beardSelector.getSelectedItem();
+            HairColor selectedHair = (HairColor) hairSelector.getSelectedItem();
+            long cnt = analysisWorker.countWithSpecificBeardAndHair(selectedBeard, selectedHair);
+            outputZone.append("Warriors with " + selectedBeard + " beard and " + selectedHair + " hair: " + cnt + "\n");
+        });
+
+        comboPanel.add(new JLabel("Beard:"));
+        comboPanel.add(beardSelector);
+        comboPanel.add(new JLabel("Hair:"));
+        comboPanel.add(hairSelector);
+        comboPanel.add(comboCountBtn);
+
+        JPanel axePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        axePanel.setBorder(BorderFactory.createTitledBorder("Axe Equipment"));
+
+        JButton singleAxeBtn = new JButton("Count with 1 Axe");
+        JButton doubleAxeBtn = new JButton("Count with 2 Axes");
+
+        singleAxeBtn.addActionListener(e -> {
+            long cnt = analysisWorker.countWarriorsWithSingleAxe();
+            outputZone.append("Warriors with exactly one axe: " + cnt + "\n");
+        });
+
+        doubleAxeBtn.addActionListener(e -> {
+            long cnt = analysisWorker.countWarriorsWithDoubleAxe();
+            outputZone.append("Warriors with exactly two axes: " + cnt + "\n");
+        });
+
+        axePanel.add(singleAxeBtn);
+        axePanel.add(doubleAxeBtn);
+
+        mainPanel.add(agePanel);
+        mainPanel.add(Box.createVerticalStrut(10));
+        mainPanel.add(comboPanel);
+        mainPanel.add(Box.createVerticalStrut(10));
+        mainPanel.add(axePanel);
+
+        return mainPanel;
+    }
+
+    private JPanel buildDisplaySection() {
+        JPanel container = new JPanel(new BorderLayout());
+
+        JTable displayTable = new JTable(resultTableModel);
+        displayTable.setRowHeight(26);
+
+        JPanel actionRow = new JPanel();
+
+        JButton randomTallBtn = new JButton("Pick Random Tall (180+ cm)");
+        JButton legendaryBtn = new JButton("Show Legendary Gear Owners");
+        JButton redSortedBtn = new JButton("Show Red-haired (sorted by age)");
+
+        randomTallBtn.addActionListener(e -> {
+            Optional<Viking> selected = analysisWorker.pickRandomTallWarrior();
+            if (selected.isPresent()) {
+                resultTableModel.updateData(List.of(selected.get()));
+                outputZone.append("Random tall warrior selected\n");
+            } else {
+                outputZone.append("No warriors taller than 180 cm found\n");
+                resultTableModel.updateData(List.of());
+            }
+        });
+
+        legendaryBtn.addActionListener(e -> {
+            List<Viking> legendaryOnes = analysisWorker.fetchAllWithLegendaryGear();
+            resultTableModel.updateData(legendaryOnes);
+            outputZone.append("Found " + legendaryOnes.size() + " warriors with legendary gear\n");
+        });
+
+        redSortedBtn.addActionListener(e -> {
+            List<Viking> redSorted = analysisWorker.getRedHairedSortedByIncreasingAge();
+            resultTableModel.updateData(redSorted);
+            outputZone.append("Displaying " + redSorted.size() + " red-haired warriors\n");
+        });
+
+        actionRow.add(randomTallBtn);
+        actionRow.add(legendaryBtn);
+        actionRow.add(redSortedBtn);
+
+        container.add(new JScrollPane(displayTable), BorderLayout.CENTER);
+        container.add(actionRow, BorderLayout.SOUTH);
+
+        return container;
+    }
+
+    private JPanel buildIndexSection() {
+        JPanel indexPanel = new JPanel(new GridBagLayout());
+        indexPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        JTextArea indexResultArea = new JTextArea(10, 40);
+        indexResultArea.setEditable(false);
+        indexResultArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
+
+        JButton maxIndexBtn = new JButton("Get Maximum Index");
+        JButton evenIndicesBtn = new JButton("Get All Even Indices");
+
+        maxIndexBtn.addActionListener(e -> {
+            Optional<Integer> maxIdx = analysisWorker.locateMaxIndex();
+            if (maxIdx.isPresent()) {
+                indexResultArea.setText("Maximum index (last position): " + maxIdx.get() + "\n");
+                indexResultArea.append("Total warriors count: " + (maxIdx.get() + 1) + "\n");
+            } else {
+                indexResultArea.setText("No warriors in storage\n");
+            }
+        });
+
+        evenIndicesBtn.addActionListener(e -> {
+            List<Integer> evenPositions = analysisWorker.extractEvenPositions();
+            if (evenPositions.isEmpty()) {
+                indexResultArea.setText("No even indices available (list is empty)\n");
+            } else {
+                indexResultArea.setText("Even indices (0-based): " + evenPositions + "\n");
+                indexResultArea.append("Count: " + evenPositions.size() + "\n");
+            }
+        });
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        indexPanel.add(maxIndexBtn, gbc);
+        gbc.gridx = 1;
+        indexPanel.add(evenIndicesBtn, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        indexPanel.add(new JScrollPane(indexResultArea), gbc);
+
+        return indexPanel;
+    }
+
+    public void showComputedCount(long amount, String description) {
+        outputZone.append("Count result [" + description + "]: " + amount + "\n");
+    }
+
+    public void showFoundWarriors(List<Viking> warriors, String status) {
+        resultTableModel.updateData(warriors);
+        outputZone.append(status + "\n");
+    }
+
+    public void showMaximumIndex(Optional<Integer> index) {
+        if (index.isPresent()) {
+            outputZone.append("Maximum index: " + index.get() + "\n");
+        } else {
+            outputZone.append("No warriors available\n");
+        }
+    }
+
+    public void showEvenIndexes(List<Integer> indexes) {
+        outputZone.append("Even indices: " + indexes + "\n");
+    }
+}
