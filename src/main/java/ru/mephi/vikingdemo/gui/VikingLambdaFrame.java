@@ -36,12 +36,12 @@ public class VikingLambdaFrame extends JFrame {
         add(new JScrollPane(outputZone), BorderLayout.SOUTH);
     }
 
-    // Остальные методы остаются без изменений...
     private JPanel buildCountingSection() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        // Age panel
         JPanel agePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         agePanel.setBorder(BorderFactory.createTitledBorder("Age Analytics"));
 
@@ -107,6 +107,7 @@ public class VikingLambdaFrame extends JFrame {
         agePanel.add(rangeBtn);
         agePanel.add(outsideBtn);
 
+        // Beard + Hair panel
         JPanel comboPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         comboPanel.setBorder(BorderFactory.createTitledBorder("Beard & Hair Combo"));
 
@@ -127,24 +128,23 @@ public class VikingLambdaFrame extends JFrame {
         comboPanel.add(hairSelector);
         comboPanel.add(comboCountBtn);
 
+        // Axe panel - обновленная версия с выбором количества топоров
         JPanel axePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         axePanel.setBorder(BorderFactory.createTitledBorder("Axe Equipment"));
 
-        JButton singleAxeBtn = new JButton("Count with 1 Axe");
-        JButton doubleAxeBtn = new JButton("Count with 2 Axes");
+        JLabel axeLabel = new JLabel("Number of axes:");
+        JComboBox<Integer> axeCountCombo = new JComboBox<>(new Integer[]{1, 2});
+        JButton countAxeBtn = new JButton("Count warriors");
 
-        singleAxeBtn.addActionListener(e -> {
-            long cnt = analysisWorker.countWarriorsWithSingleAxe();
-            outputZone.append("Warriors with exactly one axe: " + cnt + "\n");
+        countAxeBtn.addActionListener(e -> {
+            int axeCount = (Integer) axeCountCombo.getSelectedItem();
+            long cnt = analysisWorker.countWarriorsWithAxeCount(axeCount);
+            outputZone.append("Warriors with exactly " + axeCount + " axe(s): " + cnt + "\n");
         });
 
-        doubleAxeBtn.addActionListener(e -> {
-            long cnt = analysisWorker.countWarriorsWithDoubleAxe();
-            outputZone.append("Warriors with exactly two axes: " + cnt + "\n");
-        });
-
-        axePanel.add(singleAxeBtn);
-        axePanel.add(doubleAxeBtn);
+        axePanel.add(axeLabel);
+        axePanel.add(axeCountCombo);
+        axePanel.add(countAxeBtn);
 
         mainPanel.add(agePanel);
         mainPanel.add(Box.createVerticalStrut(10));

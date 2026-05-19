@@ -52,24 +52,13 @@ public class VikingLambdaService {
                 .count();
     }
 
-    public long countWarriorsWithSingleAxe() {
+    public long countWarriorsWithAxeCount(int axeCount) {
         return vikingService.getAllVikings().stream()
                 .filter(v -> {
-                    long axeCount = v.getEquipment().stream()
+                    long count = v.getEquipment().stream()
                             .filter(item -> item.getName().toLowerCase().contains("топор"))
                             .count();
-                    return axeCount == 1;
-                })
-                .count();
-    }
-
-    public long countWarriorsWithDoubleAxe() {
-        return vikingService.getAllVikings().stream()
-                .filter(v -> {
-                    long axeCount = v.getEquipment().stream()
-                            .filter(item -> item.getName().toLowerCase().contains("топор"))
-                            .count();
-                    return axeCount == 2;
+                    return count == axeCount;
                 })
                 .count();
     }
@@ -94,7 +83,7 @@ public class VikingLambdaService {
 
     public List<Viking> getRedHairedSortedByIncreasingAge() {
         return vikingService.getAllVikings().stream()
-                .filter(v -> v.getHairColor() == HairColor.RED)
+                .filter(v -> v.getHairColor() == HairColor.RED && v.getBeardStyle() != BeardStyle.CLEAN_SHAVEN)
                 .sorted(Comparator.comparingInt(Viking::getAge))
                 .collect(Collectors.toList());
     }

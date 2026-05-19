@@ -52,16 +52,11 @@ public class VikingLambdaController {
         return lambdaService.countWithSpecificBeardAndHair(beard, hair);
     }
 
-    @GetMapping("/weapons/axe/single")
-    @Operation(summary = "Количество викингов с одним топором")
-    public long countWithSingleAxe() {
-        return lambdaService.countWarriorsWithSingleAxe();
-    }
-
-    @GetMapping("/weapons/axe/double")
-    @Operation(summary = "Количество викингов с двумя топорами")
-    public long countWithDoubleAxe() {
-        return lambdaService.countWarriorsWithDoubleAxe();
+    // Один метод с параметром количества топоров
+    @GetMapping("/weapons/axe/count/{number}")
+    @Operation(summary = "Количество викингов с указанным количеством топоров (1 или 2)")
+    public long countWithAxeCount(@PathVariable int number) {
+        return lambdaService.countWarriorsWithAxeCount(number);
     }
 
     @GetMapping("/random/tall")
