@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Comparator;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class VikingLambdaService {
@@ -56,7 +57,13 @@ public class VikingLambdaService {
         return vikingService.getAllVikings().stream()
                 .filter(v -> {
                     long count = v.getEquipment().stream()
-                            .filter(item -> item.getName().toLowerCase().contains("топор"))
+                            .filter(item -> {
+                                String name = item.getName().toLowerCase();
+                                return name.contains("топор") ||
+                                        name.contains("секира") ||
+                                        name.contains("бердыш") ||
+                                        name.contains("чекан");
+                            })
                             .count();
                     return count == axeCount;
                 })
@@ -83,27 +90,23 @@ public class VikingLambdaService {
 
     public List<Viking> getRedHairedSortedByIncreasingAge() {
         return vikingService.getAllVikings().stream()
-                .filter(v -> v.getHairColor() == HairColor.RED && v.getBeardStyle() != BeardStyle.CLEAN_SHAVEN)
+                .filter(v -> v.getHairColor() == HairColor.RED)
                 .sorted(Comparator.comparingInt(Viking::getAge))
                 .collect(Collectors.toList());
     }
 
-    public Optional<Integer> locateMaxIndex() {
-        List<Viking> warriors = vikingService.getAllVikings();
-        if (warriors.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(warriors.size() - 1);
+    public Optional<String> locateMaxId() {
+        return vikingService.getAllVikings().stream()
+                .map(Viking::getId)
+                .max(String::compareTo);
     }
 
-    public List<Integer> extractEvenPositions() {
+    public List<String> extractEvenPositionIds() {
         List<Viking> warriors = vikingService.getAllVikings();
-        List<Integer> evenIndices = new ArrayList<>();
-        for (int i = 0; i < warriors.size(); i++) {
-            if (i % 2 == 0) {
-                evenIndices.add(i);
-            }
-        }
-        return evenIndices;
+        return IntStream.range(0, warriors.size())
+                .filter(i -> i % 2 == 0)
+                .mapToObj(warriors::get)
+                .map(Viking::getId)
+                .collect(Collectors.toList());
     }
 }

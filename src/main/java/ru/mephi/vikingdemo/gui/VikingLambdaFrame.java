@@ -2,268 +2,144 @@ package ru.mephi.vikingdemo.gui;
 
 import ru.mephi.vikingdemo.model.*;
 import ru.mephi.vikingdemo.service.VikingLambdaService;
+
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.util.List;
-import java.util.Optional;
 
 public class VikingLambdaFrame extends JFrame {
-
-    private final VikingLambdaService analysisWorker;
-    private final JTextArea outputZone;
-    private final VikingTableModel resultTableModel;
+    private final VikingLambdaService lambdaService;
+    private JTextArea resultArea;
 
     public VikingLambdaFrame(VikingLambdaService lambdaService) {
-        this.analysisWorker = lambdaService;
-        this.resultTableModel = new VikingTableModel();
-
-        setTitle("Stream API Analytics Dashboard");
-        setSize(1100, 700);
+        this.lambdaService = lambdaService;
+        setTitle("Lambda Analysis");
+        setSize(600, 500);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout(10, 10));
 
-        JTabbedPane tabContainer = new JTabbedPane();
-        tabContainer.addTab("Statistical Counts", buildCountingSection());
-        tabContainer.addTab("Warrior Display", buildDisplaySection());
-        tabContainer.addTab("Index Operations", buildIndexSection());
+        JPanel buttonPanel = new JPanel(new GridLayout(6, 2, 5, 5));
 
-        add(tabContainer, BorderLayout.CENTER);
+        // Кнопки для всех методов анализа
+        JButton btnCountOlder = new JButton("Старше 30 лет");
+        JButton btnCountYounger = new JButton("Младше 25 лет");
+        JButton btnCountRange = new JButton("Возраст 20-40 лет");
+        JButton btnCountOutside = new JButton("Вне диапазона 20-50");
+        JButton btnBeardHair = new JButton("Борода+Волосы");
+        JButton btnAxeCount = new JButton("Кол-во топоров");
+        JButton btnRandomTall = new JButton("Случайный высокий");
+        JButton btnLegendary = new JButton("Легендарное снаряжение");
+        JButton btnRedHaired = new JButton("Рыжие по возрасту");
+        JButton btnMaxId = new JButton("Максимальный ID");
+        JButton btnEvenPositions = new JButton("ID на четных позициях");
+        JButton btnRefresh = new JButton("Обновить");
 
-        outputZone = new JTextArea(8, 50);
-        outputZone.setEditable(false);
-        outputZone.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        add(new JScrollPane(outputZone), BorderLayout.SOUTH);
-    }
+        buttonPanel.add(btnCountOlder);
+        buttonPanel.add(btnCountYounger);
+        buttonPanel.add(btnCountRange);
+        buttonPanel.add(btnCountOutside);
+        buttonPanel.add(btnBeardHair);
+        buttonPanel.add(btnAxeCount);
+        buttonPanel.add(btnRandomTall);
+        buttonPanel.add(btnLegendary);
+        buttonPanel.add(btnRedHaired);
+        buttonPanel.add(btnMaxId);
+        buttonPanel.add(btnEvenPositions);
+        buttonPanel.add(btnRefresh);
 
-    private JPanel buildCountingSection() {
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        resultArea = new JTextArea();
+        resultArea.setEditable(false);
+        resultArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 
-        // Age panel
-        JPanel agePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        agePanel.setBorder(BorderFactory.createTitledBorder("Age Analytics"));
+        add(buttonPanel, BorderLayout.NORTH);
+        add(new JScrollPane(resultArea), BorderLayout.CENTER);
 
-        JTextField ageField = new JTextField(5);
-        JButton olderBtn = new JButton("Count >");
-        JButton youngerBtn = new JButton("Count <");
+        // Обработчики событий
+        btnCountOlder.addActionListener(e -> {
+            long count = lambdaService.getWarriorsOlderThan(30);
+            resultArea.setText("Викингов старше 30 лет: " + count);
+        });
 
-        JTextField rangeLow = new JTextField(4);
-        JTextField rangeHigh = new JTextField(4);
-        JButton rangeBtn = new JButton("Count between");
-        JButton outsideBtn = new JButton("Count outside");
+        btnCountYounger.addActionListener(e -> {
+            long count = lambdaService.getWarriorsYoungerThan(25);
+            resultArea.setText("Викингов младше 25 лет: " + count);
+        });
 
-        olderBtn.addActionListener(e -> {
+        btnCountRange.addActionListener(e -> {
+            long count = lambdaService.getWarriorsAgeBetween(20, 40);
+            resultArea.setText("Викингов в возрасте 20-40 лет: " + count);
+        });
+
+        btnCountOutside.addActionListener(e -> {
+            long count = lambdaService.getWarriorsAgeOutsideRange(20, 50);
+            resultArea.setText("Викингов вне диапазона 20-50 лет: " + count);
+        });
+
+        btnBeardHair.addActionListener(e -> {
+            BeardStyle beard = BeardStyle.LONG_BEARD;
+            HairColor hair = HairColor.RED;
+            long count = lambdaService.countWithSpecificBeardAndHair(beard, hair);
+            resultArea.setText("Викингов с длинной бородой и рыжими волосами: " + count);
+        });
+
+        btnAxeCount.addActionListener(e -> {
+            String input = JOptionPane.showInputDialog(this, "Количество топоров (1 или 2):", "1");
             try {
-                int val = Integer.parseInt(ageField.getText());
-                long cnt = analysisWorker.getWarriorsOlderThan(val);
-                outputZone.append("Warriors older than " + val + ": " + cnt + "\n");
-            } catch(Exception ex) {
-                outputZone.append("Invalid age value\n");
+                int count = Integer.parseInt(input);
+                long result = lambdaService.countWarriorsWithAxeCount(count);
+                resultArea.setText("Викингов с " + count + " топором(ами): " + result);
+            } catch (Exception ex) {
+                resultArea.setText("Ошибка ввода");
             }
         });
 
-        youngerBtn.addActionListener(e -> {
-            try {
-                int val = Integer.parseInt(ageField.getText());
-                long cnt = analysisWorker.getWarriorsYoungerThan(val);
-                outputZone.append("Warriors younger than " + val + ": " + cnt + "\n");
-            } catch(Exception ex) {
-                outputZone.append("Invalid age value\n");
-            }
-        });
-
-        rangeBtn.addActionListener(e -> {
-            try {
-                int lo = Integer.parseInt(rangeLow.getText());
-                int hi = Integer.parseInt(rangeHigh.getText());
-                long cnt = analysisWorker.getWarriorsAgeBetween(lo, hi);
-                outputZone.append("Warriors between " + lo + " and " + hi + ": " + cnt + "\n");
-            } catch(Exception ex) {
-                outputZone.append("Invalid range values\n");
-            }
-        });
-
-        outsideBtn.addActionListener(e -> {
-            try {
-                int lo = Integer.parseInt(rangeLow.getText());
-                int hi = Integer.parseInt(rangeHigh.getText());
-                long cnt = analysisWorker.getWarriorsAgeOutsideRange(lo, hi);
-                outputZone.append("Warriors outside [" + lo + "-" + hi + "]: " + cnt + "\n");
-            } catch(Exception ex) {
-                outputZone.append("Invalid range values\n");
-            }
-        });
-
-        agePanel.add(new JLabel("Age:"));
-        agePanel.add(ageField);
-        agePanel.add(olderBtn);
-        agePanel.add(youngerBtn);
-        agePanel.add(new JLabel("Range:"));
-        agePanel.add(rangeLow);
-        agePanel.add(new JLabel("-"));
-        agePanel.add(rangeHigh);
-        agePanel.add(rangeBtn);
-        agePanel.add(outsideBtn);
-
-        // Beard + Hair panel
-        JPanel comboPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        comboPanel.setBorder(BorderFactory.createTitledBorder("Beard & Hair Combo"));
-
-        JComboBox<BeardStyle> beardSelector = new JComboBox<>(BeardStyle.values());
-        JComboBox<HairColor> hairSelector = new JComboBox<>(HairColor.values());
-        JButton comboCountBtn = new JButton("Count matching");
-
-        comboCountBtn.addActionListener(e -> {
-            BeardStyle selectedBeard = (BeardStyle) beardSelector.getSelectedItem();
-            HairColor selectedHair = (HairColor) hairSelector.getSelectedItem();
-            long cnt = analysisWorker.countWithSpecificBeardAndHair(selectedBeard, selectedHair);
-            outputZone.append("Warriors with " + selectedBeard + " beard and " + selectedHair + " hair: " + cnt + "\n");
-        });
-
-        comboPanel.add(new JLabel("Beard:"));
-        comboPanel.add(beardSelector);
-        comboPanel.add(new JLabel("Hair:"));
-        comboPanel.add(hairSelector);
-        comboPanel.add(comboCountBtn);
-
-        // Axe panel - обновленная версия с выбором количества топоров
-        JPanel axePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        axePanel.setBorder(BorderFactory.createTitledBorder("Axe Equipment"));
-
-        JLabel axeLabel = new JLabel("Number of axes:");
-        JComboBox<Integer> axeCountCombo = new JComboBox<>(new Integer[]{1, 2});
-        JButton countAxeBtn = new JButton("Count warriors");
-
-        countAxeBtn.addActionListener(e -> {
-            int axeCount = (Integer) axeCountCombo.getSelectedItem();
-            long cnt = analysisWorker.countWarriorsWithAxeCount(axeCount);
-            outputZone.append("Warriors with exactly " + axeCount + " axe(s): " + cnt + "\n");
-        });
-
-        axePanel.add(axeLabel);
-        axePanel.add(axeCountCombo);
-        axePanel.add(countAxeBtn);
-
-        mainPanel.add(agePanel);
-        mainPanel.add(Box.createVerticalStrut(10));
-        mainPanel.add(comboPanel);
-        mainPanel.add(Box.createVerticalStrut(10));
-        mainPanel.add(axePanel);
-
-        return mainPanel;
-    }
-
-    private JPanel buildDisplaySection() {
-        JPanel container = new JPanel(new BorderLayout());
-
-        JTable displayTable = new JTable(resultTableModel);
-        displayTable.setRowHeight(26);
-
-        JPanel actionRow = new JPanel();
-
-        JButton randomTallBtn = new JButton("Pick Random Tall (180+ cm)");
-        JButton legendaryBtn = new JButton("Show Legendary Gear Owners");
-        JButton redSortedBtn = new JButton("Show Red-haired (sorted by age)");
-
-        randomTallBtn.addActionListener(e -> {
-            Optional<Viking> selected = analysisWorker.pickRandomTallWarrior();
-            if (selected.isPresent()) {
-                resultTableModel.updateData(List.of(selected.get()));
-                outputZone.append("Random tall warrior selected\n");
+        btnRandomTall.addActionListener(e -> {
+            var result = lambdaService.pickRandomTallWarrior();
+            if (result.isPresent()) {
+                Viking v = result.get();
+                resultArea.setText("Случайный высокий викинг:\n" +
+                        "Имя: " + v.getName() + "\n" +
+                        "Возраст: " + v.getAge() + "\n" +
+                        "Рост: " + v.getHeightCm() + " см");
             } else {
-                outputZone.append("No warriors taller than 180 cm found\n");
-                resultTableModel.updateData(List.of());
+                resultArea.setText("Нет викингов выше 180 см");
             }
         });
 
-        legendaryBtn.addActionListener(e -> {
-            List<Viking> legendaryOnes = analysisWorker.fetchAllWithLegendaryGear();
-            resultTableModel.updateData(legendaryOnes);
-            outputZone.append("Found " + legendaryOnes.size() + " warriors with legendary gear\n");
-        });
-
-        redSortedBtn.addActionListener(e -> {
-            List<Viking> redSorted = analysisWorker.getRedHairedSortedByIncreasingAge();
-            resultTableModel.updateData(redSorted);
-            outputZone.append("Displaying " + redSorted.size() + " red-haired warriors\n");
-        });
-
-        actionRow.add(randomTallBtn);
-        actionRow.add(legendaryBtn);
-        actionRow.add(redSortedBtn);
-
-        container.add(new JScrollPane(displayTable), BorderLayout.CENTER);
-        container.add(actionRow, BorderLayout.SOUTH);
-
-        return container;
-    }
-
-    private JPanel buildIndexSection() {
-        JPanel indexPanel = new JPanel(new GridBagLayout());
-        indexPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-
-        JTextArea indexResultArea = new JTextArea(10, 40);
-        indexResultArea.setEditable(false);
-        indexResultArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
-
-        JButton maxIndexBtn = new JButton("Get Maximum Index");
-        JButton evenIndicesBtn = new JButton("Get All Even Indices");
-
-        maxIndexBtn.addActionListener(e -> {
-            Optional<Integer> maxIdx = analysisWorker.locateMaxIndex();
-            if (maxIdx.isPresent()) {
-                indexResultArea.setText("Maximum index (last position): " + maxIdx.get() + "\n");
-                indexResultArea.append("Total warriors count: " + (maxIdx.get() + 1) + "\n");
-            } else {
-                indexResultArea.setText("No warriors in storage\n");
+        btnLegendary.addActionListener(e -> {
+            List<Viking> legendary = lambdaService.fetchAllWithLegendaryGear();
+            StringBuilder sb = new StringBuilder("Викинги с легендарным снаряжением:\n\n");
+            for (Viking v : legendary) {
+                sb.append(v.getName()).append(" - ").append(v.getAge()).append(" лет\n");
             }
+            resultArea.setText(sb.toString());
         });
 
-        evenIndicesBtn.addActionListener(e -> {
-            List<Integer> evenPositions = analysisWorker.extractEvenPositions();
-            if (evenPositions.isEmpty()) {
-                indexResultArea.setText("No even indices available (list is empty)\n");
-            } else {
-                indexResultArea.setText("Even indices (0-based): " + evenPositions + "\n");
-                indexResultArea.append("Count: " + evenPositions.size() + "\n");
+        btnRedHaired.addActionListener(e -> {
+            List<Viking> redHaired = lambdaService.getRedHairedSortedByIncreasingAge();
+            StringBuilder sb = new StringBuilder("Рыжеволосые викинги по возрастанию возраста:\n\n");
+            for (Viking v : redHaired) {
+                sb.append(v.getName()).append(" - ").append(v.getAge()).append(" лет\n");
             }
+            resultArea.setText(sb.toString());
         });
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        indexPanel.add(maxIndexBtn, gbc);
-        gbc.gridx = 1;
-        indexPanel.add(evenIndicesBtn, gbc);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 2;
-        indexPanel.add(new JScrollPane(indexResultArea), gbc);
+        btnMaxId.addActionListener(e -> {
+            var maxId = lambdaService.locateMaxId();
+            resultArea.setText("Максимальный ID: " + maxId.orElse("Нет викингов"));
+        });
 
-        return indexPanel;
-    }
+        btnEvenPositions.addActionListener(e -> {
+            List<String> ids = lambdaService.extractEvenPositionIds();
+            StringBuilder sb = new StringBuilder("ID на четных позициях:\n\n");
+            for (int i = 0; i < ids.size(); i++) {
+                sb.append(i * 2).append(": ").append(ids.get(i)).append("\n");
+            }
+            resultArea.setText(sb.toString());
+        });
 
-    public void showComputedCount(long amount, String description) {
-        outputZone.append("Count result [" + description + "]: " + amount + "\n");
-    }
-
-    public void showFoundWarriors(List<Viking> warriors, String status) {
-        resultTableModel.updateData(warriors);
-        outputZone.append(status + "\n");
-    }
-
-    public void showMaximumIndex(Optional<Integer> index) {
-        if (index.isPresent()) {
-            outputZone.append("Maximum index: " + index.get() + "\n");
-        } else {
-            outputZone.append("No warriors available\n");
-        }
-    }
-
-    public void showEvenIndexes(List<Integer> indexes) {
-        outputZone.append("Even indices: " + indexes + "\n");
+        btnRefresh.addActionListener(e -> {
+            resultArea.setText("Данные обновлены. Выберите операцию.");
+        });
     }
 }
