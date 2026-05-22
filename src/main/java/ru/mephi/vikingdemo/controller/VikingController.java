@@ -90,9 +90,5 @@ public class VikingController {
         return ResponseEntity.notFound().build();
     }
 
-    @GetMapping(value = "/count", produces = "application/json")
-    @Operation(summary = "Количество викингов")
-    public int getCount() {
-        return vikingService.getAllVikings().size();
-    }
+
 }

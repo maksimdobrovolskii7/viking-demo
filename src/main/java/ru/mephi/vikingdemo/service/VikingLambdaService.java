@@ -91,6 +91,7 @@ public class VikingLambdaService {
     public List<Viking> getRedHairedSortedByIncreasingAge() {
         return vikingService.getAllVikings().stream()
                 .filter(v -> v.getHairColor() == HairColor.RED)
+                .filter(v -> v.getBeardStyle() != BeardStyle.CLEAN_SHAVEN)
                 .sorted(Comparator.comparingInt(Viking::getAge))
                 .collect(Collectors.toList());
     }
