@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
 
 @Service
 public class VikingService {
-    private final Map<String, Viking> vikings = new ConcurrentHashMap<>();
+    private final Map<Integer, Viking> vikings = new ConcurrentHashMap<>();
     private final VikingFactory vikingFactory;
 
     public VikingService(VikingFactory vikingFactory) {
@@ -31,7 +31,7 @@ public class VikingService {
         return viking;
     }
 
-    public Optional<Viking> updateViking(String id, UpdateVikingRequest request) {
+    public Optional<Viking> updateViking(Integer id, UpdateVikingRequest request) {
         Viking existing = vikings.get(id);
         if (existing == null) {
             return Optional.empty();
@@ -53,11 +53,11 @@ public class VikingService {
         return new ArrayList<>(vikings.values());
     }
 
-    public Optional<Viking> findById(String id) {
+    public Optional<Viking> findById(Integer id) {
         return Optional.ofNullable(vikings.get(id));
     }
 
-    public boolean deleteById(String id) {
+    public boolean deleteById(Integer id) {
         return vikings.remove(id) != null;
     }
 

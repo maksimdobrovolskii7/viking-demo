@@ -78,7 +78,7 @@ public class VikingTableModel extends AbstractTableModel {
                 .collect(Collectors.joining(", "));
     }
 
-    public String getVikingIdAt(int row) {
+    public Integer getVikingIdAt(int row) {
         return data.get(row).getId();
     }
 }

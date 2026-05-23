@@ -77,17 +77,16 @@ public class VikingLambdaController {
         return lambdaService.getRedHairedSortedByIncreasingAge();
     }
 
-    // Исправленные методы - работаем с ID, а не с индексами
     @GetMapping("/ids/max")
     @Operation(summary = "Максимальный ID в списке (лексикографически)")
-    public ResponseEntity<String> getMaxId() {
-        Optional<String> maxId = lambdaService.locateMaxId();
+    public ResponseEntity<Integer> getMaxId() {
+        Optional<Integer> maxId = lambdaService.locateMaxId();
         return maxId.map(ResponseEntity::ok).orElse(ResponseEntity.noContent().build());
     }
 
     @GetMapping("/ids/even-positions")
     @Operation(summary = "ID викингов на чётных позициях (0, 2, 4...)")
-    public List<String> getEvenPositionIds() {
+    public List<Integer> getEvenPositionIds() {
         return lambdaService.extractEvenPositionIds();
     }
 }

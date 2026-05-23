@@ -38,7 +38,7 @@ public class VikingDesktopFrame extends JFrame {
                 if (SwingUtilities.isRightMouseButton(e)) {
                     int row = vikingTable.rowAtPoint(e.getPoint());
                     if (row >= 0) {
-                        String id = tableModel.getVikingIdAt(row);
+                        Integer id = tableModel.getVikingIdAt(row);
                         int confirm = JOptionPane.showConfirmDialog(VikingDesktopFrame.this,
                                 "Удалить викинга?", "Подтверждение", JOptionPane.YES_NO_OPTION);
                         if (confirm == JOptionPane.YES_OPTION) {

@@ -5,8 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class Viking {
-    private String id;
-    private String name;
+    private Integer id;    private String name;
     private int age;
     private int heightCm;
     private HairColor hairColor;
@@ -14,12 +13,14 @@ public class Viking {
     private List<EquipmentItem> equipment;
 
     public Viking() {
-        this.id = UUID.randomUUID().toString();
+        this.id = generateNumericId();
         this.equipment = new ArrayList<>();
     }
-
+    private Integer generateNumericId() {
+        return (int) (System.currentTimeMillis() % 1000000);
+    }
     // Getters
-    public String getId() { return id; }
+    public Integer getId() { return id; }
     public String getName() { return name; }
     public int getAge() { return age; }
     public int getHeightCm() { return heightCm; }
@@ -28,7 +29,6 @@ public class Viking {
     public List<EquipmentItem> getEquipment() { return equipment; }
 
     // Setters
-    public void setId(String id) { this.id = id; }
     public void setName(String name) { this.name = name; }
     public void setAge(int age) { this.age = age; }
     public void setHeightCm(int heightCm) { this.heightCm = heightCm; }

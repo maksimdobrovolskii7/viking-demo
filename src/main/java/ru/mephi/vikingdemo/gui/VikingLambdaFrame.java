@@ -126,11 +126,11 @@ public class VikingLambdaFrame extends JFrame {
 
         btnMaxId.addActionListener(e -> {
             var maxId = lambdaService.locateMaxId();
-            resultArea.setText("Максимальный ID: " + maxId.orElse("Нет викингов"));
+            resultArea.setText("Максимальный ID: " + (maxId.isPresent() ? maxId.get().toString() : "Нет викингов"));
         });
 
         btnEvenPositions.addActionListener(e -> {
-            List<String> ids = lambdaService.extractEvenPositionIds();
+            List<Integer> ids = lambdaService.extractEvenPositionIds();
             StringBuilder sb = new StringBuilder("ID на четных позициях:\n\n");
             for (int i = 0; i < ids.size(); i++) {
                 sb.append(i * 2).append(": ").append(ids.get(i)).append("\n");

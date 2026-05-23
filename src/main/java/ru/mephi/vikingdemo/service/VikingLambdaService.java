@@ -7,7 +7,7 @@ import ru.mephi.vikingdemo.model.Quality;
 import ru.mephi.vikingdemo.model.EquipmentItem;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Comparator;
@@ -96,18 +96,26 @@ public class VikingLambdaService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<String> locateMaxId() {
-        return vikingService.getAllVikings().stream()
+    public Optional<Integer> locateMaxId() {
+        Integer[] ids = vikingService.getAllVikings().stream()
                 .map(Viking::getId)
-                .max(String::compareTo);
+                .toArray(Integer[]::new);
+
+        if (ids.length == 0) {
+            return Optional.empty();
+        }
+
+        return Arrays.stream(ids)
+                .max(Integer::compareTo);
     }
 
-    public List<String> extractEvenPositionIds() {
-        List<Viking> warriors = vikingService.getAllVikings();
-        return IntStream.range(0, warriors.size())
-                .filter(i -> i % 2 == 0)
-                .mapToObj(warriors::get)
+    public List<Integer> extractEvenPositionIds() {
+        Integer[] ids = vikingService.getAllVikings().stream()
                 .map(Viking::getId)
+                .toArray(Integer[]::new);
+
+        return IntStream.range(0, ids.length)
+                .filter(i -> i % 2 == 0)
+                .mapToObj(i -> ids[i])
                 .collect(Collectors.toList());
-    }
-}
+    }}

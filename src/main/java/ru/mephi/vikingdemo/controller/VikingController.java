@@ -39,7 +39,7 @@ public class VikingController {
 
     @GetMapping(value = "/{id}", produces = "application/json")
     @Operation(summary = "Получить викинга по ID")
-    public ResponseEntity<Viking> getVikingById(@PathVariable String id) {
+    public ResponseEntity<Viking> getVikingById(@PathVariable Integer id) {
         return vikingService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -68,7 +68,7 @@ public class VikingController {
 
     @PutMapping(value = "/{id}", produces = "application/json", consumes = "application/json")
     @Operation(summary = "Обновить викинга по ID")
-    public ResponseEntity<Viking> updateViking(@PathVariable String id, @RequestBody UpdateVikingRequest request) {
+    public ResponseEntity<Viking> updateViking(@PathVariable Integer id, @RequestBody UpdateVikingRequest request) {
         return vikingService.updateViking(id, request)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -82,7 +82,7 @@ public class VikingController {
 
     @DeleteMapping(value = "/{id}")
     @Operation(summary = "Удалить викинга по ID")
-    public ResponseEntity<Void> deleteVikingById(@PathVariable String id) {
+    public ResponseEntity<Void> deleteVikingById(@PathVariable Integer id) {
         boolean deleted = vikingService.deleteById(id);
         if (deleted) {
             return ResponseEntity.noContent().build();
