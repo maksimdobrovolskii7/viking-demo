@@ -210,34 +210,34 @@ public class VikingLambdaFrame extends JFrame {
         indexResultArea.setEditable(false);
         indexResultArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
 
-        JButton maxIndexBtn = new JButton("Get Maximum Index");
-        JButton evenIndicesBtn = new JButton("Get All Even Indices");
+        JButton maxIdBtn = new JButton("Get Maximum ID");
+        JButton evenIdsBtn = new JButton("Get IDs at Even Positions");
 
-        maxIndexBtn.addActionListener(e -> {
-            Optional<Integer> maxIdx = analysisWorker.locateMaxIndex();
-            if (maxIdx.isPresent()) {
-                indexResultArea.setText("Maximum index (last position): " + maxIdx.get() + "\n");
-                indexResultArea.append("Total warriors count: " + (maxIdx.get() + 1) + "\n");
+        evenIdsBtn.addActionListener(e -> {
+            List<Integer> evenIds = analysisWorker.getEvenIds();
+            if (evenIds.isEmpty()) {
+                indexResultArea.setText("No IDs available (list is empty)\n");
             } else {
-                indexResultArea.setText("No warriors in storage\n");
+                indexResultArea.setText("IDs at even positions (0-based index): " + evenIds + "\n");
+                indexResultArea.append("Count: " + evenIds.size() + "\n");
             }
         });
 
-        evenIndicesBtn.addActionListener(e -> {
-            List<Integer> evenPositions = analysisWorker.extractEvenPositions();
-            if (evenPositions.isEmpty()) {
-                indexResultArea.setText("No even indices available (list is empty)\n");
+        evenIdsBtn.addActionListener(e -> {
+            List<Integer> evenIds = analysisWorker.getEvenIds();
+            if (evenIds.isEmpty()) {
+                indexResultArea.setText("No IDs available (list is empty)\n");
             } else {
-                indexResultArea.setText("Even indices (0-based): " + evenPositions + "\n");
-                indexResultArea.append("Count: " + evenPositions.size() + "\n");
+                indexResultArea.setText("IDs at even positions (0-based index): " + evenIds + "\n");
+                indexResultArea.append("Count: " + evenIds.size() + "\n");
             }
         });
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        indexPanel.add(maxIndexBtn, gbc);
+        indexPanel.add(maxIdBtn, gbc);
         gbc.gridx = 1;
-        indexPanel.add(evenIndicesBtn, gbc);
+        indexPanel.add(evenIdsBtn, gbc);
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 2;

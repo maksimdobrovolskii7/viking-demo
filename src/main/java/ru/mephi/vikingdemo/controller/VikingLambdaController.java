@@ -75,19 +75,22 @@ public class VikingLambdaController {
     @GetMapping("/red-haired/sorted")
     @Operation(summary = "Рыжеволосые викинги, отсортированные по возрасту")
     public List<Viking> getRedHairedSortedByAge() {
+
         return lambdaService.getRedHairedSortedByIncreasingAge();
     }
 
-    @GetMapping("/indices/max")
-    @Operation(summary = "Максимальный индекс в списке")
-    public ResponseEntity<Integer> getMaxIndex() {
-        Optional<Integer> index = lambdaService.locateMaxIndex();
-        return index.map(ResponseEntity::ok).orElse(ResponseEntity.noContent().build());
+    @GetMapping("/ids/max")
+    @Operation(summary = "Максимальный ID в списке")
+    public ResponseEntity<Integer> getMaxId() {
+        int maxId = lambdaService.getMaxId();
+        if (maxId == -1) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(maxId);
     }
 
-    @GetMapping("/indices/even")
-    @Operation(summary = "Чётные индексы в списке")
-    public List<Integer> getEvenIndices() {
-        return lambdaService.extractEvenPositions();
-    }
-}
+    @GetMapping("/ids/even-positions")
+    @Operation(summary = "ID викингов на чётных позициях (0, 2, 4...)")
+    public List<Integer> getEvenPositionIds() {
+        return lambdaService.getEvenIds();
+    }}

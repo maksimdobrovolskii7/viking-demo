@@ -4,10 +4,9 @@ import ru.mephi.vikingdemo.model.Viking;
 import ru.mephi.vikingdemo.model.BeardStyle;
 import ru.mephi.vikingdemo.model.HairColor;
 import ru.mephi.vikingdemo.model.Quality;
-import ru.mephi.vikingdemo.model.EquipmentItem;
+import java.util.Arrays;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Comparator;
@@ -44,6 +43,14 @@ public class VikingLambdaService {
         return vikingService.getAllVikings().stream()
                 .filter(v -> v.getAge() < low || v.getAge() > high)
                 .count();
+    }
+
+
+
+    public List<Integer> evenIds(Integer[] ids) {
+        return Arrays.stream(ids)
+                .filter(id -> id % 2 == 0)
+                .collect(Collectors.toList());
     }
 
     public long countWithSpecificBeardAndHair(BeardStyle beardTarget, HairColor hairTarget) {
@@ -88,22 +95,24 @@ public class VikingLambdaService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<Integer> locateMaxIndex() {
-        List<Viking> warriors = vikingService.getAllVikings();
-        if (warriors.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(warriors.size() - 1);
+    public Integer[] getAllIds() {
+        return vikingService.getAllVikings().stream()
+                .map(Viking::getId)
+                .toArray(Integer[]::new);
     }
 
-    public List<Integer> extractEvenPositions() {
-        List<Viking> warriors = vikingService.getAllVikings();
-        List<Integer> evenIndices = new ArrayList<>();
-        for (int i = 0; i < warriors.size(); i++) {
-            if (i % 2 == 0) {
-                evenIndices.add(i);
-            }
-        }
-        return evenIndices;
+    public int maxId(Integer[] ids) {
+        if (ids.length == 0) return -1;
+        return Arrays.stream(ids)
+                .mapToInt(Integer::intValue)
+                .max()
+                .getAsInt();
+    }
+    public int getMaxId() {
+        return maxId(getAllIds());
+    }
+
+    public List<Integer> getEvenIds() {
+        return evenIds(getAllIds());
     }
 }
