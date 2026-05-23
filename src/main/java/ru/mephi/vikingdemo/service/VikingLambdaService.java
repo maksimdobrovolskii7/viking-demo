@@ -7,12 +7,11 @@ import ru.mephi.vikingdemo.model.Quality;
 import ru.mephi.vikingdemo.model.EquipmentItem;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Comparator;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class VikingLambdaService {
@@ -57,13 +56,7 @@ public class VikingLambdaService {
         return vikingService.getAllVikings().stream()
                 .filter(v -> {
                     long count = v.getEquipment().stream()
-                            .filter(item -> {
-                                String name = item.getName().toLowerCase();
-                                return name.contains("топор") ||
-                                        name.contains("секира") ||
-                                        name.contains("бердыш") ||
-                                        name.contains("чекан");
-                            })
+                            .filter(item -> item.getName().toLowerCase().contains("топор"))
                             .count();
                     return count == axeCount;
                 })
@@ -90,32 +83,27 @@ public class VikingLambdaService {
 
     public List<Viking> getRedHairedSortedByIncreasingAge() {
         return vikingService.getAllVikings().stream()
-                .filter(v -> v.getHairColor() == HairColor.RED)
-                .filter(v -> v.getBeardStyle() != BeardStyle.CLEAN_SHAVEN)
+                .filter(v -> v.getHairColor() == HairColor.RED && v.getBeardStyle() != BeardStyle.CLEAN_SHAVEN)
                 .sorted(Comparator.comparingInt(Viking::getAge))
                 .collect(Collectors.toList());
     }
 
-    public Optional<Integer> locateMaxId() {
-        Integer[] ids = vikingService.getAllVikings().stream()
-                .map(Viking::getId)
-                .toArray(Integer[]::new);
-
-        if (ids.length == 0) {
+    public Optional<Integer> locateMaxIndex() {
+        List<Viking> warriors = vikingService.getAllVikings();
+        if (warriors.isEmpty()) {
             return Optional.empty();
         }
-
-        return Arrays.stream(ids)
-                .max(Integer::compareTo);
+        return Optional.of(warriors.size() - 1);
     }
 
-    public List<Integer> extractEvenPositionIds() {
-        Integer[] ids = vikingService.getAllVikings().stream()
-                .map(Viking::getId)
-                .toArray(Integer[]::new);
-
-        return IntStream.range(0, ids.length)
-                .filter(i -> i % 2 == 0)
-                .mapToObj(i -> ids[i])
-                .collect(Collectors.toList());
-    }}
+    public List<Integer> extractEvenPositions() {
+        List<Viking> warriors = vikingService.getAllVikings();
+        List<Integer> evenIndices = new ArrayList<>();
+        for (int i = 0; i < warriors.size(); i++) {
+            if (i % 2 == 0) {
+                evenIndices.add(i);
+            }
+        }
+        return evenIndices;
+    }
+}

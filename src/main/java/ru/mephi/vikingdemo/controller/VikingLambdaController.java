@@ -52,6 +52,7 @@ public class VikingLambdaController {
         return lambdaService.countWithSpecificBeardAndHair(beard, hair);
     }
 
+    // Один метод с параметром количества топоров
     @GetMapping("/weapons/axe/count/{number}")
     @Operation(summary = "Количество викингов с указанным количеством топоров (1 или 2)")
     public long countWithAxeCount(@PathVariable int number) {
@@ -77,16 +78,16 @@ public class VikingLambdaController {
         return lambdaService.getRedHairedSortedByIncreasingAge();
     }
 
-    @GetMapping("/ids/max")
-    @Operation(summary = "Максимальный ID в списке (лексикографически)")
-    public ResponseEntity<Integer> getMaxId() {
-        Optional<Integer> maxId = lambdaService.locateMaxId();
-        return maxId.map(ResponseEntity::ok).orElse(ResponseEntity.noContent().build());
+    @GetMapping("/indices/max")
+    @Operation(summary = "Максимальный индекс в списке")
+    public ResponseEntity<Integer> getMaxIndex() {
+        Optional<Integer> index = lambdaService.locateMaxIndex();
+        return index.map(ResponseEntity::ok).orElse(ResponseEntity.noContent().build());
     }
 
-    @GetMapping("/ids/even-positions")
-    @Operation(summary = "ID викингов на чётных позициях (0, 2, 4...)")
-    public List<Integer> getEvenPositionIds() {
-        return lambdaService.extractEvenPositionIds();
+    @GetMapping("/indices/even")
+    @Operation(summary = "Чётные индексы в списке")
+    public List<Integer> getEvenIndices() {
+        return lambdaService.extractEvenPositions();
     }
 }
