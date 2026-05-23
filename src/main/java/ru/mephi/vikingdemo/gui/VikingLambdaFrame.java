@@ -128,23 +128,19 @@ public class VikingLambdaFrame extends JFrame {
         comboPanel.add(hairSelector);
         comboPanel.add(comboCountBtn);
 
-        // Axe panel - обновленная версия с выбором количества топоров
+        // Axe panel - одна кнопка для 1 или 2 топоров
         JPanel axePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         axePanel.setBorder(BorderFactory.createTitledBorder("Axe Equipment"));
 
-        JLabel axeLabel = new JLabel("Number of axes:");
-        JComboBox<Integer> axeCountCombo = new JComboBox<>(new Integer[]{1, 2});
-        JButton countAxeBtn = new JButton("Count warriors");
+        JButton listAxesBtn = new JButton("Show Warriors with 1 or 2 Axes");
 
-        countAxeBtn.addActionListener(e -> {
-            int axeCount = (Integer) axeCountCombo.getSelectedItem();
-            long cnt = analysisWorker.countWarriorsWithAxeCount(axeCount);
-            outputZone.append("Warriors with exactly " + axeCount + " axe(s): " + cnt + "\n");
+        listAxesBtn.addActionListener(e -> {
+            List<Viking> warriorsWithAxes = analysisWorker.getWarriorsWithOneOrTwoAxes();
+            resultTableModel.updateData(warriorsWithAxes);
+            outputZone.append("Found " + warriorsWithAxes.size() + " warriors with 1 or 2 axes\n");
         });
 
-        axePanel.add(axeLabel);
-        axePanel.add(axeCountCombo);
-        axePanel.add(countAxeBtn);
+        axePanel.add(listAxesBtn);
 
         mainPanel.add(agePanel);
         mainPanel.add(Box.createVerticalStrut(10));
@@ -213,16 +209,18 @@ public class VikingLambdaFrame extends JFrame {
         JButton maxIdBtn = new JButton("Get Maximum ID");
         JButton evenIdsBtn = new JButton("Get IDs at Even Positions");
 
-        evenIdsBtn.addActionListener(e -> {
-            List<Integer> evenIds = analysisWorker.getEvenIds();
-            if (evenIds.isEmpty()) {
-                indexResultArea.setText("No IDs available (list is empty)\n");
+        // ← ДОБАВИТЬ ЭТОТ ОБРАБОТЧИК ДЛЯ maxIdBtn
+        maxIdBtn.addActionListener(e -> {
+            int maxId = analysisWorker.getMaxId();
+            if (maxId == -1) {
+                indexResultArea.setText("No warriors in storage\n");
             } else {
-                indexResultArea.setText("IDs at even positions (0-based index): " + evenIds + "\n");
-                indexResultArea.append("Count: " + evenIds.size() + "\n");
+                indexResultArea.setText("Maximum ID: " + maxId + "\n");
+                indexResultArea.append("Total warriors count: " + analysisWorker.getAllIds().length + "\n");
             }
         });
 
+        // Обработчик для evenIdsBtn (оставить один, удалить дубликат)
         evenIdsBtn.addActionListener(e -> {
             List<Integer> evenIds = analysisWorker.getEvenIds();
             if (evenIds.isEmpty()) {

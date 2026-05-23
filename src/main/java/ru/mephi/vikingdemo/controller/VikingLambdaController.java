@@ -89,6 +89,12 @@ public class VikingLambdaController {
         return ResponseEntity.ok(maxId);
     }
 
+    @GetMapping("/weapons/axe/list")
+    @Operation(summary = "Список викингов с 1 или 2 топорами")
+    public List<Viking> getWarriorsWithOneOrTwoAxes() {
+        return lambdaService.getWarriorsWithOneOrTwoAxes();
+    }
+
     @GetMapping("/ids/even-positions")
     @Operation(summary = "ID викингов на чётных позициях (0, 2, 4...)")
     public List<Integer> getEvenPositionIds() {

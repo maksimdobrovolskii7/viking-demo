@@ -31,6 +31,8 @@ public class VikingService {
         return viking;
     }
 
+    
+
     public Optional<Viking> updateViking(Integer id, UpdateVikingRequest request) {
         Viking existing = vikings.get(id);
         if (existing == null) {

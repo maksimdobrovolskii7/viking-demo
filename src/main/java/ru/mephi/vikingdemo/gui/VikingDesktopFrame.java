@@ -53,16 +53,16 @@ public class VikingDesktopFrame extends JFrame {
         JButton createButton = new JButton("Create random viking");
         createButton.addActionListener(event -> onCreateViking());
 
-        JButton massGenButton = new JButton("Mass generate");
-        massGenButton.addActionListener(e -> {
-            String input = JOptionPane.showInputDialog(this, "Enter number of vikings to generate:", "10");
-            int count = 10;
-            try {
-                count = Integer.parseInt(input);
-            } catch (Exception ex) { }
-            vikingService.generateRandomVikings(count);
-            refreshTable();
-        });
+            JButton massGenButton = new JButton("Mass generate");
+            massGenButton.addActionListener(e -> {
+                String input = JOptionPane.showInputDialog(this, "Enter number of vikings to generate:", "10");
+                int count = 10;
+                try {
+                    count = Integer.parseInt(input);
+                } catch (Exception ex) { }
+                vikingService.generateRandomVikings(count);
+                refreshTable();
+            });
 
         JButton analysisButton = new JButton("Lambda Analysis");
         analysisButton.addActionListener(e -> {

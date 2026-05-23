@@ -1,9 +1,7 @@
 package ru.mephi.vikingdemo.service;
 
-import ru.mephi.vikingdemo.model.Viking;
-import ru.mephi.vikingdemo.model.BeardStyle;
-import ru.mephi.vikingdemo.model.HairColor;
-import ru.mephi.vikingdemo.model.Quality;
+import ru.mephi.vikingdemo.model.*;
+
 import java.util.Arrays;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -47,12 +45,6 @@ public class VikingLambdaService {
 
 
 
-    public List<Integer> evenIds(Integer[] ids) {
-        return Arrays.stream(ids)
-                .filter(id -> id % 2 == 0)
-                .collect(Collectors.toList());
-    }
-
     public long countWithSpecificBeardAndHair(BeardStyle beardTarget, HairColor hairTarget) {
         return vikingService.getAllVikings().stream()
                 .filter(v -> v.getBeardStyle() == beardTarget && v.getHairColor() == hairTarget)
@@ -68,6 +60,19 @@ public class VikingLambdaService {
                     return count == axeCount;
                 })
                 .count();
+    }
+
+    public List<Viking> getWarriorsWithOneOrTwoAxes() {
+        return vikingService.getAllVikings().stream()
+                .filter(v -> {
+                    long count = v.getEquipment().stream()
+                            .map(EquipmentItem::getName)
+                            .map(String::toLowerCase)
+                            .filter(name -> name.contains("топор") || name.contains("секира") || name.contains("бердыш"))
+                            .count();
+                    return count == 1 || count == 2;
+                })
+                .collect(Collectors.toList());
     }
 
     public Optional<Viking> pickRandomTallWarrior() {
@@ -90,7 +95,7 @@ public class VikingLambdaService {
 
     public List<Viking> getRedHairedSortedByIncreasingAge() {
         return vikingService.getAllVikings().stream()
-                .filter(v -> v.getHairColor() == HairColor.RED && v.getBeardStyle() != BeardStyle.CLEAN_SHAVEN)
+                .filter(v -> !(v.getHairColor() != HairColor.RED || v.getBeardStyle() == BeardStyle.CLEAN_SHAVEN))
                 .sorted(Comparator.comparingInt(Viking::getAge))
                 .collect(Collectors.toList());
     }
@@ -104,10 +109,17 @@ public class VikingLambdaService {
     public int maxId(Integer[] ids) {
         if (ids.length == 0) return -1;
         return Arrays.stream(ids)
-                .mapToInt(Integer::intValue)
+                .mapToInt(i -> i.intValue())
                 .max()
                 .getAsInt();
     }
+
+    public List<Integer> evenIds(Integer[] ids) {
+        return Arrays.stream(ids)
+                .filter(id -> id % 2 == 0)
+                .collect(Collectors.toList());
+    }
+
     public int getMaxId() {
         return maxId(getAllIds());
     }

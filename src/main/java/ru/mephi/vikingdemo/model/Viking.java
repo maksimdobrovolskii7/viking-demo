@@ -16,8 +16,10 @@ public class Viking {
         this.id = generateNumericId();
         this.equipment = new ArrayList<>();
     }
+    private static int idCounter = 0;
+
     private Integer generateNumericId() {
-        return (int) (System.currentTimeMillis() % 1000000);
+        return ++idCounter;
     }
     // Getters
     public Integer getId() { return id; }
