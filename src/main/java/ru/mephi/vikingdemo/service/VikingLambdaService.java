@@ -116,7 +116,7 @@ public class VikingLambdaService {
 
     public List<Integer> evenIds(Integer[] ids) {
         return Arrays.stream(ids)
-                .filter(id -> id % 2 == 0)
+                    .filter(id -> id % 2 == 0)
                 .collect(Collectors.toList());
     }
 
