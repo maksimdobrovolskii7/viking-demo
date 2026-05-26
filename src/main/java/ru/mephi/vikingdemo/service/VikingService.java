@@ -22,7 +22,8 @@ public class VikingService {
     }
 
     public void generateRandomVikings(int count) {
-        IntStream.range(0, count).forEach(i -> createRandomViking());
+        List<Viking> newVikings = vikingFactory.generateRandomVikings(count);
+        newVikings.forEach(v -> vikings.put(v.getId(), v));
     }
 
     public Viking createVikingManually(CreateVikingRequest request) {

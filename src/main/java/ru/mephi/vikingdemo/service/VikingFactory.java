@@ -4,6 +4,8 @@ import ru.mephi.vikingdemo.model.*;
 import net.datafaker.Faker;
 import org.springframework.stereotype.Component;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 public class VikingFactory {
@@ -91,5 +93,10 @@ public class VikingFactory {
         viking.setBeardStyle(request.beardStyle());
         viking.setEquipment(request.equipment());
         return viking;
+    }
+    public List<Viking> generateRandomVikings(int count) {
+        return IntStream.range(0, count)
+                .mapToObj(i -> createRandomViking())
+                .collect(Collectors.toList());
     }
 }
